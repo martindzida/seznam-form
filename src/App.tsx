@@ -30,13 +30,15 @@ function App() {
     },
   });
 
-  const submitHanlder = (data: FormFields) => {
-    if (data.email === '' && data.phone === '') {
+  const submitHandler = ({email, phone}: FormFields) => {
+    if (email === '' && phone === '') {
       setError('missingContact', {type: 'custom', message: 'Email nebo telefon nesmí být prázdný'});
       return;
     }
+
+    const resMessage: ResType = email === 'neexistujici@email.cz' ? 'Neexistující email' : 'Formulář úspěšně odeslán';
     setTimeout(() => {
-      setResponse(data.email === 'neexistujici@email.cz' ? 'Neexistující email' : 'Formulář úspěšně odeslán');
+      setResponse(resMessage);
     }, 3000);
   };
 
@@ -44,8 +46,8 @@ function App() {
     <div className='w-screen h-screen flex justify-center items-center bg-slate-500'>
       <div>
         <h1 className='md:text-5xl sm:text-4xl text-3xl font-extrabold text-white text-center py-16 px-10'>Kontaktní formulář</h1>
-        <form onSubmit={handleSubmit(submitHanlder)} className='flex flex-col items-center gap-6 bg-slate-600 rounded-xl sm:p-16 p-10'>
-          <input {...register('name')} type='text' placeholder='Jméno' name='name' className='p-2 rounded-lg' />
+        <form onSubmit={handleSubmit(submitHandler)} className='flex flex-col items-center gap-6 bg-slate-600 rounded-xl sm:p-16 p-10'>
+          <input {...register('name')} type='text' placeholder='Jméno' id='name' name='name' className='p-2 rounded-lg' />
           {errors.email && <strong className='bg-rose-500 text-white rounded-lg p-2'>{errors.email?.message}</strong>}
           {/*RegEx src: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/email*/}
           <input
@@ -59,6 +61,7 @@ function App() {
             onChange={() => clearErrors(['missingContact', 'nonExistentEmail'])}
             type='email'
             placeholder='Email'
+            id='email'
             name='email'
             className='p-2 rounded-lg'
           />
@@ -69,11 +72,13 @@ function App() {
             onChange={() => clearErrors(['missingContact'])}
             type='text'
             placeholder='Telefon'
+            id='phone'
             name='phone'
             className='p-2 rounded-lg'
           />
           <textarea
             {...register('message', {required: 'Pole Zpráva je povinné'})}
+            id='message'
             name='message'
             placeholder='Zpráva'
             rows={10}
