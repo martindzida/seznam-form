@@ -13,7 +13,7 @@ interface FormFields {
 
 export type ResType = 'Neexistující email' | 'Formulář úspěšně odeslán';
 
-function App() {
+const App = () => {
   const [response, setResponse] = useState<ResType | null>(null);
   const {
     register,
@@ -96,7 +96,7 @@ function App() {
       </div>
     </div>
   );
-}
+};
 
 export default App;
 
