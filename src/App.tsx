@@ -7,21 +7,34 @@ interface FormFields {
   email: string;
   phone: string;
   message: string;
+}
+
+interface FormErrors {
   missingContact: string;
   nonExistentEmail: string;
 }
 
-export type ResType = 'Neexistující email' | 'Formulář úspěšně odeslán';
+type FormProps = FormFields & FormErrors;
+
+const INVALID_EMAIL = 'neexistujici@email.cz';
+
+const MESSAGES = {
+  missingContact: 'Email nebo telefon nesmí být prázdný',
+  nonExistentEmail: 'Neexistující email',
+  formSuccess: 'Formulář úspěšně odeslán',
+  invalidFromat: 'Nesprávný formát',
+  emptyMessageField: 'Pole Zpráva je povinné',
+};
 
 const App = () => {
-  const [response, setResponse] = useState<ResType | null>(null);
+  const [response, setResponse] = useState<string | null>(null);
   const {
     register,
     handleSubmit,
     setError,
     clearErrors,
     formState: {errors},
-  } = useForm<FormFields>({
+  } = useForm<FormProps>({
     defaultValues: {
       name: '',
       email: '',
@@ -32,11 +45,11 @@ const App = () => {
 
   const submitHandler = ({email, phone}: FormFields) => {
     if (email === '' && phone === '') {
-      setError('missingContact', {type: 'custom', message: 'Email nebo telefon nesmí být prázdný'});
+      setError('missingContact', {type: 'custom', message: MESSAGES.missingContact});
       return;
     }
 
-    const resMessage: ResType = email === 'neexistujici@email.cz' ? 'Neexistující email' : 'Formulář úspěšně odeslán';
+    const resMessage: string = email === INVALID_EMAIL ? MESSAGES.nonExistentEmail : MESSAGES.formSuccess;
     setTimeout(() => {
       setResponse(resMessage);
     }, 3000);
@@ -68,7 +81,7 @@ const App = () => {
           {errors.phone && <strong className='bg-rose-500 text-white rounded-lg p-2'>{errors.phone?.message}</strong>}
           {/*RegEx src: https://www.regularnivyrazy.info/telefonni-cislo.html*/}
           <input
-            {...register('phone', {pattern: {value: /^(\+420)? ?[1-9][0-9]{2} ?[0-9]{3} ?[0-9]{3}$/, message: 'Nesprávný formát'}})}
+            {...register('phone', {pattern: {value: /^(\+420)? ?[1-9][0-9]{2} ?[0-9]{3} ?[0-9]{3}$/, message: MESSAGES.invalidFromat}})}
             onChange={() => clearErrors(['missingContact'])}
             type='text'
             placeholder='Telefon'
@@ -77,7 +90,7 @@ const App = () => {
             className='p-2 rounded-lg'
           />
           <textarea
-            {...register('message', {required: 'Pole Zpráva je povinné'})}
+            {...register('message', {required: MESSAGES.emptyMessageField})}
             id='message'
             name='message'
             placeholder='Zpráva'
@@ -92,7 +105,7 @@ const App = () => {
             className='text-white font-bold bg-blue-400 transition ease-in-out duration-300 hover:bg-blue-500 cursor-pointer p-3 rounded-lg'
           />
         </form>
-        {response && <Response res={response} />}
+        {response && <Response isValid={response === MESSAGES.nonExistentEmail}>{response}</Response>}
       </div>
     </div>
   );
